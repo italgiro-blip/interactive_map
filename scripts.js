@@ -16,18 +16,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const map = L.map('map', {
         center: [41.5388, -8.6151],
         zoom: 12,
-        layers: [dark] // Por defecto carga el oscuro
+        layers: [dark] 
     });
 
-    // IMPORTANTE: Forzar el refresco del mapa para que Leaflet detecte el div correctamente
-    setTimeout(() => { map.invalidateSize(); }, 300);
+    // SOLUCIÓN AL MAPA QUE NO CARGA:
+    // Forzamos el redibujado después de que las animaciones de CSS terminen.
+    setTimeout(() => {
+        map.invalidateSize();
+    }, 600);
 
     const baseMaps = {
         "Modo Escuro": dark,
         "Satélite": satellite,
         "OpenStreetMap": osm
     };
-    L.control.layers(baseMaps, null, { collapsed: false }).addTo(map);
+    L.control.layers(baseMaps).addTo(map);
 
     // --- 2. GLOBALES Y REFERENCIAS DOM ---
     const btnCargar = document.getElementById('btnCargarGeoJSON');
@@ -48,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         blue:   ['#e0f3f8','#abd9e9','#74add1','#4575b4','#313695']
     };
 
-    // --- 3. LÓGICA ESTADÍSTICA (TU CÓDIGO INTACTO) ---
+    // --- 3. LÓGICA ESTADÍSTICA (JENKS) ---
     function parseValue(val) {
         if (val === null || val === undefined) return NaN;
         const clean = val.toString().replace(/\./g, '').replace(',', '.').trim();
@@ -108,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return jenksBreaks(values, k);
     }
 
-    // --- 4. RENDERIZADO (CONECTADO CON TU CSS) ---
+    // --- 4. RENDERIZADO ---
     function getColor(v, breaks, palette) {
         if (isNaN(v)) return '#333';
         for (let i = 0; i < breaks.length - 1; i++) {
@@ -121,7 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const v = parseValue(feature.properties[variableSelect.value]);
         return {
             fillColor: getColor(v, currentBreaks, currentPalette),
-            weight: 1, color: '#fff', fillOpacity: 0.8
+            weight: 1, 
+            color: '#fff', 
+            fillOpacity: 0.8
         };
     }
 
@@ -136,9 +141,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 item.style.background = c;
                 item.dataset.min = currentBreaks[i];
                 item.dataset.max = currentBreaks[i+1];
-                // Formateo de números para que quepan en tus 75px de ancho del CSS
-                const valStr = currentBreaks[i+1] > 1000 ? (currentBreaks[i+1]/1000).toFixed(1) + 'k' : currentBreaks[i+1].toFixed(0);
-                item.innerText = valStr;
+                // Formateo del texto de la leyenda
+                const labelText = currentBreaks[i+1].toLocaleString('pt-PT', { maximumFractionDigits: 1 });
+                item.innerText = labelText;
                 div.appendChild(item);
             });
             return div;
@@ -155,12 +160,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('mainTitle').innerText = variableSelect.value.toUpperCase();
     }
 
-    // --- 5. CARGA DE DATOS ---
+    // --- 5. ACCIONES DE USUARIO ---
     btnCargar.onclick = () => {
-        // IMPORTANTE: Asegúrate de tener barcelos.geojson en la misma carpeta
+        // Asegúrate de usar un servidor local (Live Server)
         fetch('barcelos.geojson') 
             .then(res => {
-                if (!res.ok) throw new Error("Archivo no encontrado o error de CORS");
+                if (!res.ok) throw new Error("No se pudo cargar el archivo barcelos.geojson");
                 return res.json();
             })
             .then(data => {
@@ -188,32 +193,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 map.fitBounds(geojsonLayer.getBounds());
                 
-                // Poblado automático de Selects
+                // Actualizar selects dinámicamente según el GeoJSON
                 const props = data.features[0].properties;
                 idSelect.innerHTML = ''; variableSelect.innerHTML = '';
                 for (let k in props) {
                     idSelect.add(new Option(k, k));
+                    // Solo agregar a variables de análisis si es un número (o convertible a número)
                     if (!isNaN(parseValue(props[k]))) variableSelect.add(new Option(k, k));
                 }
                 updateMap();
             })
             .catch(err => {
                 console.error(err);
-                alert("Error: Para cargar el GeoJSON localmente necesitas usar un servidor (como Live Server) o subirlo a GitHub Pages.");
+                alert("Error de carga. Asegúrate de que el archivo 'barcelos.geojson' esté en la carpeta raíz y de que estés ejecutando esto con un servidor (Live Server en VS Code).");
             });
     };
 
-    // Exportar CSV
     btnExportar.onclick = () => {
-        if (!geojsonData) return alert("Cargue los datos primero");
-        const headers = Object.keys(geojsonData.features[0].properties).join(",");
-        const rows = geojsonData.features.map(f => Object.values(f.properties).join(","));
-        const blob = new Blob([headers + "\n" + rows.join("\n")], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'datos_barcelos.csv';
-        a.click();
+        if (!geojsonData) {
+            alert("Primero cargue los datos en el mapa.");
+            return;
+        }
+
+        const firstFeature = geojsonData.features[0].properties;
+        const headers = Object.keys(firstFeature).join(",");
+
+        const rows = geojsonData.features.map(f => {
+            return Object.values(f.properties).map(val => {
+                let s = String(val).replace(/"/g, '""');
+                if (s.includes(",")) s = `"${s}"`;
+                return s;
+            }).join(",");
+        });
+
+        const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + rows.join("\n");
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `indicadores_barcelos_${variableSelect.value}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     [variableSelect, classificationSelect, paletteSelect].forEach(el => el.onchange = updateMap);
