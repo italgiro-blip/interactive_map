@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIG Barcelos | Visualizador Geográfico</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="map-overlay-header">
+        <div class="header-content">
+            <img src="https://w7.pngwing.com/pngs/464/735/png-transparent-barcelos-portugal-portuguese-cuisine-chicken-rooster-caldeirada-rooster-animals-galliformes-bird-thumbnail.png" 
+                 alt="Galo de Barcelos" class="map-logo">
+            <h1 id="mainTitle">MUNICÍPIO DE BARCELOS</h1>
+            <p>Análise de Distribuição e Indicadores Geográficos</p>
+            <h2 id="subTitle">Selecione uma variável para começar</h2>
+        </div>
+    </header>
+
+    <aside class="controls">
+        <h3 style="margin: 0 0 10px 0; font-size: 14px; color: #ff8c1a;">CONFIGURAÇÕES (Por favor, clique no botão)</h3>
+        <button type="button" id="btnCargarGeoJSON" class="map-button">
+            CARREGAR DADOS GEOJSON
+        </button>
+        
+        <button type="button" id="btnExportarCSV" class="map-button btn-secondary">
+            EXPORTAR DADOS (CSV)
+        </button>
+
+        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 10px 0;">
+
+        <label>CAMPO IDENTIFICADOR
+            <select id="idSelect"></select>
+        </label>
+
+        <label>ETIQUETA DE EXIBIÇÃO
+            <select id="labelSelect"></select>
+        </label>
+
+        <label>VARIÁVEL DE ANÁLISE
+            <select id="variableSelect"></select>
+        </label>
+
+        <label>MÉTODO DE CLASSIFICAÇÃO
+            <select id="classificationSelect">
+                <option value="jenks" selected>Quebras Naturais (Jenks)</option>
+                <option value="quantile">Quantis (Distribuição Igual)</option>
+                <option value="equal">Intervalos Iguais</option>
+            </select>
+        </label>
+
+        <label>PALETA DE CORES
+            <select id="paletteSelect">
+                <option value="fire" selected>Laranja </option>
+                <option value="azure">Violeta </option>
+                <option value="blue">Azul </option>
+                <option value="red">Vermelho </option>
+                <option value="green">Verde </option>
+                <option value="purple">Roxo </option>
+            </select>
+        </label>
+    </aside>
+
+    <div class="side-images">
+        <img src="https://www.heraldicacivica.pt/images/armas/bcl.gif" 
+             alt="Escudo de Barcelos" class="side-image" title="Escudo de Armas">
+        <img src="https://www.crwflags.com/fotw/images/p/pt-bcl.gif" 
+             alt="Bandeira de Barcelos" class="side-image" title="Bandeira Municipal">
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+
+</body>
+</html>
