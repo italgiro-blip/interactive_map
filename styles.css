@@ -1,14 +1,25 @@
+/* --- 1. CONFIGURACIÓN BASE (MODIFICADA) --- */
 html, body {
-    height: 100%;
-    width: 100%;
     margin: 0;
-    display: block; /* A veces el overflow: hidden en el body corta el renderizado inicial */
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: 'Roboto Condensed', sans-serif;
+    background: #1a1a1a;
+    color: #eee;
+    overflow: hidden;
+    display: block; /* Para asegurar el cálculo de dimensiones */
 }
 
+/* --- 2. CONTENEDOR DEL MAPA (MODIFICADO) --- */
 #map {
-    height: 100vh !important;
-    width: 100vw !important;
-    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #222;
+    z-index: 0;
 }
 
 .leaflet-container {
@@ -202,3 +213,4 @@ html, body {
     border-radius: 8px !important;
 
 }
+
