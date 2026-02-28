@@ -1,21 +1,14 @@
-/* --- 1. CONFIGURACIÓN BASE Y CUERPO --- */
 html, body {
+    height: 100%;
+    width: 100%;
     margin: 0;
-    padding: 0;
-    width: 100vw;  
-    height: 100vh; 
-    font-family: 'Roboto Condensed', sans-serif;
-    background: #1a1a1a;
-    color: #eee;
-    overflow: hidden; 
+    display: block; /* A veces el overflow: hidden en el body corta el renderizado inicial */
 }
 
-/* --- 2. CONTENEDOR DEL MAPA --- */
 #map {
-    position: absolute;
-    top: 0; bottom: 0; left: 0; right: 0;
-    background: #222; 
-    z-index: 0;
+    height: 100vh !important;
+    width: 100vw !important;
+    display: block;
 }
 
 .leaflet-container {
@@ -207,4 +200,5 @@ html, body {
     color: white !important;
     border: none !important;
     border-radius: 8px !important;
+
 }
