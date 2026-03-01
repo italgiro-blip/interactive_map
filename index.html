@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIG Barcelos Pro</title>
+    <title>SIG Barcelos | Análise Geográfica</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
@@ -18,11 +18,18 @@
     </header>
 
     <aside class="controls">
-        <h3 style="color: #ff8c1a; font-size: 14px; letter-spacing: 1px; margin-bottom: 15px;">DADOS GEOGRÁFICOS</h3>
+        <h3 style="color: #ff8c1a; font-size: 14px; letter-spacing: 1px; margin-bottom: 15px;">CONFIGURAÇÕES</h3>
         
-        <button type="button" id="btnCargarGeoJSON" class="map-button">CARREGAR MAPA</button>
+        <button type="button" id="btnCargarGeoJSON" class="map-button">CARREGAR DADOS</button>
 
         <div class="separator"></div>
+
+        <label>MÉTODO DE CLASSIFICAÇÃO
+            <select id="classificationSelect">
+                <option value="jenks" selected>Quebras Naturais (Jenks)</option>
+                <option value="equal">Intervalos Iguais</option>
+            </select>
+        </label>
 
         <label>SELECIONAR FREGUESIA
             <select id="labelSelect">
@@ -31,10 +38,15 @@
         </label>
 
         <div id="infoBox" class="info-card">
-            <p id="detailNome">Selecione ou clique num polígono</p>
-            <p id="detailTaxa"></p>
+            <p id="detailNome"><b>Nome:</b> --</p>
+            <p id="detailTaxa"><b>Taxa:</b> --</p>
         </div>
     </aside>
+
+    <div class="side-images">
+        <img src="https://www.heraldicacivica.pt/images/armas/bcl.gif" alt="Escudo" class="side-image">
+        <img src="https://www.crwflags.com/fotw/images/p/pt-bcl.gif" alt="Bandeira" class="side-image">
+    </div>
 
     <div id="map"></div>
 
