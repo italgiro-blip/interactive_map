@@ -1,17 +1,36 @@
 document.addEventListener('DOMContentLoaded', () => {
+
     // --- 1. CONFIGURACIÓN DE MAPAS BASE ---
-    const dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; CARTO' });
-    const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: 'Esri' });
-    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM' });
+    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap'
+    });
 
-    const map = L.map('map', { center: [41.5388, -8.6151], zoom: 12, layers: [dark] });
-    L.control.layers({"Escuro": dark, "Satélite": satellite, "Street": osm}).addTo(map);
+    const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Esri &mdash; DigitalGlobe'
+    });
 
-    // --- 2. GLOBALES ---
+    const dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; CARTO'
+    });
+
+    const map = L.map('map', {
+        center: [41.5388, -8.6151],
+        zoom: 12,
+        layers: [dark] 
+    });
+
+    const baseMaps = {
+        "Modo Escuro": dark,
+        "Satélite": satellite,
+        "OpenStreetMap": osm
+    };
+    L.control.layers(baseMaps).addTo(map);
+
+    // --- 2. GLOBALES Y REFERENCIAS DOM ---
     const btnCargar = document.getElementById('btnCargarGeoJSON');
     const btnExportar = document.getElementById('btnExportarCSV');
     const idSelect = document.getElementById('idSelect');
-    const labelSelect = document.getElementById('labelSelect'); // El nuevo select
+    const labelSelect = document.getElementById('labelSelect'); // Referencia al select de etiquetas
     const variableSelect = document.getElementById('variableSelect');
     const classificationSelect = document.getElementById('classificationSelect');
     const paletteSelect = document.getElementById('paletteSelect');
@@ -20,19 +39,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentBreaks = [], currentPalette = [];
 
     const palettes = {
-        fire: ['#fff5cc','#ffb84d','#ff8c1a','#e65c00','#993d00'],
-        azure: ['#ffffff','#cdd3ec','#7f8dc6','#555fa3','#2a3180'],
-        green: ['#e5f5e0','#a1d99b','#74c476','#31a354','#006d2c'],
-        red: ['#fee0d2','#fc9272','#fb6a4a','#de2d26','#a50f15'],
-        blue: ['#e0f3f8','#abd9e9','#74add1','#4575b4','#313695']
+        fire:    ['#fff5cc','#ffb84d','#ff8c1a','#e65c00','#993d00'],
+        azure:   ['#ffffff','#cdd3ec','#7f8dc6','#555fa3','#2a3180'],
+        green:   ['#e5f5e0','#a1d99b','#74c476','#31a354','#006d2c'],
+        red:     ['#fee0d2','#fc9272','#fb6a4a','#de2d26','#a50f15'],
+        blue:    ['#e0f3f8','#abd9e9','#74add1','#4575b4','#313695']
     };
 
+    // --- 3. LÓGICA ESTADÍSTICA (JENKS) ---
     function parseValue(val) {
         if (val === null || val === undefined) return NaN;
-        return parseFloat(val.toString().replace(/\./g, '').replace(',', '.').trim());
+        const clean = val.toString().replace(/\./g, '').replace(',', '.').trim();
+        return parseFloat(clean);
     }
 
-    // --- 3. LÓGICA DE JENKS (Mantenida) ---
     function jenksBreaks(data, n) {
         data.sort((a, b) => a - b);
         const lower = Array(data.length + 1).fill(0).map(() => Array(n + 1).fill(0));
@@ -70,7 +90,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function computeBreaks(variable, method) {
-        const values = geojsonData.features.map(f => parseValue(f.properties[variable])).filter(v => !isNaN(v)).sort((a, b) => a - b);
+        const values = geojsonData.features
+            .map(f => parseValue(f.properties[variable]))
+            .filter(v => !isNaN(v)).sort((a, b) => a - b);
         if (values.length === 0) return [];
         const k = 5;
         if (method === 'equal') {
@@ -78,10 +100,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const step = (max - min) / k;
             return Array.from({ length: k + 1 }, (_, i) => min + i * step);
         }
-        if (method === 'quantile') return Array.from({ length: k + 1 }, (_, i) => values[Math.floor(i * (values.length - 1) / k)]);
+        if (method === 'quantile') {
+            return Array.from({ length: k + 1 }, (_, i) => values[Math.floor(i * (values.length - 1) / k)]);
+        }
         return jenksBreaks(values, k);
     }
 
+    // --- 4. RENDERIZADO ---
     function getColor(v, breaks, palette) {
         if (isNaN(v)) return '#333';
         for (let i = 0; i < breaks.length - 1; i++) {
@@ -92,7 +117,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function styleFeature(feature) {
         const v = parseValue(feature.properties[variableSelect.value]);
-        return { fillColor: getColor(v, currentBreaks, currentPalette), weight: 1, color: '#fff', fillOpacity: 0.8 };
+        return {
+            fillColor: getColor(v, currentBreaks, currentPalette),
+            weight: 1, color: '#fff', fillOpacity: 0.8
+        };
     }
 
     function addLegend() {
@@ -123,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('mainTitle').innerText = variableSelect.value.toUpperCase();
     }
 
-    // --- 4. CARGA DE DATOS (CORREGIDO) ---
+    // --- 5. ACCIONES DE USUARIO ---
     btnCargar.onclick = () => {
         fetch('barcelos.geojson') 
             .then(res => res.json())
@@ -146,17 +174,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             geojsonLayer.resetStyle(e.target);
                             document.querySelectorAll('.range-item').forEach(i => i.classList.remove('highlighted'));
                         });
-
-                        // Tooltip con Nombre y Tasa
-                        const n = f.properties.nome || "N/A";
-                        const t = f.properties.taxa || "0";
-                        l.bindTooltip(`<b>${n}</b><br><span style="color:#ff8c1a">Taxa: ${t}%</span>`, { sticky: true });
+                        
+                        // CAMBIO 1: Tooltip con NOME y TAXA
+                        const tooltipContent = `<b>${f.properties.nome || ''}</b><br>Taxa: ${f.properties.taxa || 0}%<br>${variableSelect.value}: ${f.properties[variableSelect.value]}`;
+                        l.bindTooltip(tooltipContent, { sticky: true });
                     }
                 }).addTo(map);
                 
                 map.fitBounds(geojsonLayer.getBounds());
                 
-                // Llenado de selects
                 const props = data.features[0].properties;
                 idSelect.innerHTML = ''; variableSelect.innerHTML = ''; labelSelect.innerHTML = '';
                 
@@ -165,10 +191,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!isNaN(parseValue(props[k]))) variableSelect.add(new Option(k, k));
                 }
 
-                // Llenado del select de etiquetas con NOME y TAXA
+                // CAMBIO 2: Llenar el desplegable con NOME y TAXA
                 data.features.forEach(feat => {
-                    const texto = `${feat.properties.nome} - (${feat.properties.taxa}%)`;
-                    labelSelect.add(new Option(texto, feat.properties.nome));
+                    const labelText = `${feat.properties.nome} - (Taxa: ${feat.properties.taxa}%)`;
+                    labelSelect.add(new Option(labelText, feat.properties.nome));
                 });
 
                 updateMap();
@@ -176,13 +202,27 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     btnExportar.onclick = () => {
-        if (!geojsonData) return alert("Cargue datos primero.");
-        const headers = Object.keys(geojsonData.features[0].properties).join(",");
-        const rows = geojsonData.features.map(f => Object.values(f.properties).join(",")).join("\n");
+        if (!geojsonData) {
+            alert("Primero cargue los datos en el mapa.");
+            return;
+        }
+        const firstFeature = geojsonData.features[0].properties;
+        const headers = Object.keys(firstFeature).join(",");
+        const rows = geojsonData.features.map(f => {
+            return Object.values(f.properties).map(val => {
+                let s = String(val).replace(/"/g, '""');
+                if (s.includes(",")) s = `"${s}"`;
+                return s;
+            }).join(",");
+        });
+        const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + rows.join("\n");
+        const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
-        link.href = "data:text/csv;charset=utf-8," + encodeURI(headers + "\n" + rows);
-        link.download = "barcelos_data.csv";
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `indicadores_barcelos_${variableSelect.value}.csv`);
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
     };
 
     [variableSelect, classificationSelect, paletteSelect].forEach(el => el.onchange = updateMap);
