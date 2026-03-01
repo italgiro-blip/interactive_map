@@ -1,48 +1,28 @@
-/* Estilos Base */
 html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; font-family: 'Roboto Condensed', sans-serif; background: #121212; overflow: hidden; }
-
 #map { position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: 0; }
 
-/* Header Minimalista */
-.map-overlay-header {
-    position: absolute; top: 0; left: 0; right: 0; z-index: 1000;
-    display: flex; justify-content: center; pointer-events: none;
-}
-.header-content {
-    background: rgba(18, 18, 18, 0.9); padding: 10px 50px;
-    border-radius: 0 0 15px 15px; border: 1px dashed #ff8c1a;
-    display: flex; align-items: center; gap: 15px; pointer-events: auto;
-}
-.map-logo { height: 45px; }
-#mainTitle { margin: 0; font-size: 20px; color: #fff; letter-spacing: 2px; }
+/* Header */
+.map-overlay-header { position: absolute; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: center; pointer-events: none; }
+.header-content { background: rgba(18, 18, 18, 0.9); padding: 10px 40px; border-radius: 0 0 15px 15px; border-bottom: 2px solid #ff8c1a; display: flex; align-items: center; gap: 15px; pointer-events: auto; }
+.map-logo { height: 40px; }
+#mainTitle { margin: 0; font-size: 18px; color: #fff; letter-spacing: 1px; }
 
-/* Panel de Control */
-.controls {
-    position: absolute; top: 20px; left: 20px; z-index: 1000;
-    background: rgba(25, 25, 25, 0.95); padding: 20px; width: 240px;
-    border-radius: 12px; border-left: 4px solid #ff8c1a; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-.map-button {
-    width: 100%; background: #ff8c1a; color: #fff; border: none; padding: 12px;
-    border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s;
-}
-.map-button:hover { background: #e65c00; transform: scale(1.02); }
-
+/* Controls */
+.controls { position: absolute; top: 20px; left: 20px; z-index: 1000; background: rgba(25, 25, 25, 0.95); padding: 20px; width: 250px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.map-button { width: 100%; background: #ff8c1a; color: #fff; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-bottom: 5px; }
 .separator { height: 1px; background: rgba(255,255,255,0.1); margin: 15px 0; }
-
-label { font-size: 11px; color: #888; font-weight: bold; display: flex; flex-direction: column; gap: 8px; }
+label { font-size: 11px; color: #888; font-weight: bold; display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
 select { background: #333; color: #fff; border: 1px solid #444; padding: 8px; border-radius: 4px; }
 
-/* Tarjeta de Información */
-.info-card {
-    margin-top: 20px; padding: 15px; background: rgba(255,140,26,0.15);
-    border: 1px solid rgba(255,140,26,0.3); border-radius: 8px; min-height: 50px;
-}
-.info-card p { margin: 5px 0; font-size: 14px; color: #eee; }
-#detailNome b { color: #ff8c1a; }
+/* Info Card */
+.info-card { margin-top: 15px; padding: 12px; background: rgba(255,140,26,0.1); border: 1px solid rgba(255,140,26,0.2); border-radius: 8px; }
+.info-card p { margin: 4px 0; font-size: 14px; color: #eee; }
 
-/* Tooltips */
-.leaflet-tooltip {
-    background: #1a1a1a !important; color: white !important;
-    border: 1px solid #ff8c1a !important; border-radius: 4px; padding: 5px 10px;
-}
+/* Side Images */
+.side-images { position: absolute; top: 100px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
+.side-image { width: 70px; border-radius: 4px; border: 1px solid #444; background: white; padding: 2px; transition: 0.3s; }
+.side-image:hover { transform: scale(1.1); border-color: #ff8c1a; }
+
+/* Leyenda */
+.legend { background: rgba(0,0,0,0.8) !important; color: white; padding: 10px; border-radius: 4px; line-height: 18px; }
+.legend i { width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.8; }
