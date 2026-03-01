@@ -1,241 +1,48 @@
-/* --- 1. CONFIGURACIÓN BASE Y CUERPO --- */
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100vw;  
-    height: 100vh; 
-    font-family: 'Roboto Condensed', sans-serif;
-    background: #1a1a1a;
-    color: #eee;
-    overflow: hidden; 
-}
+/* Estilos Base */
+html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; font-family: 'Roboto Condensed', sans-serif; background: #121212; overflow: hidden; }
 
-/* --- 2. CONTENEDOR DEL MAPA --- */
-#map {
-    position: absolute;
-    top: 0; bottom: 0; left: 0; right: 0;
-    background: #222; 
-    z-index: 0;
-}
+#map { position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: 0; }
 
-.leaflet-container {
-    background: #222 !important;
-    outline: 0;
-}
-
-/* --- 3. ANIMACIONES DE ENTRADA --- */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.controls, .map-overlay-header, .side-images {
-    animation: fadeInUp 0.8s ease-out forwards;
-}
-
-.side-images {
-    animation-delay: 0.3s;
-    opacity: 0;
-}
-
-/* --- 4. ENCABEZADO (HEADER) --- */
+/* Header Minimalista */
 .map-overlay-header {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    pointer-events: none;
+    position: absolute; top: 0; left: 0; right: 0; z-index: 1000;
+    display: flex; justify-content: center; pointer-events: none;
 }
-
 .header-content {
-    background: rgba(26, 26, 26, 0.95);
-    padding: 12px 40px;
-    border-radius: 0 0 20px 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    pointer-events: auto;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+    background: rgba(18, 18, 18, 0.9); padding: 10px 50px;
+    border-radius: 0 0 15px 15px; border: 1px dashed #ff8c1a;
+    display: flex; align-items: center; gap: 15px; pointer-events: auto;
 }
+.map-logo { height: 45px; }
+#mainTitle { margin: 0; font-size: 20px; color: #fff; letter-spacing: 2px; }
 
-.map-logo {
-    height: 60px;
-    margin-bottom: 10px;
-}
-
-#mainTitle {
-    margin: 0;
-    font-size: 22px;
-    font-weight: 700;
-    color: #ffffff;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-}
-
-/* --- 5. PANEL DE CONTROLES (IZQUIERDA) --- */
+/* Panel de Control */
 .controls {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    background: rgba(30, 30, 30, 0.9);
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.1);
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    width: 260px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    position: absolute; top: 20px; left: 20px; z-index: 1000;
+    background: rgba(25, 25, 25, 0.95); padding: 20px; width: 240px;
+    border-radius: 12px; border-left: 4px solid #ff8c1a; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
-
 .map-button {
-    background: #ff8c1a;
-    color: #fff;
-    border: none;
-    padding: 10px;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: 0.3s;
+    width: 100%; background: #ff8c1a; color: #fff; border: none; padding: 12px;
+    border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s;
 }
+.map-button:hover { background: #e65c00; transform: scale(1.02); }
 
-.map-button:hover {
-    background: #e65c00;
-    transform: translateY(-1px);
+.separator { height: 1px; background: rgba(255,255,255,0.1); margin: 15px 0; }
+
+label { font-size: 11px; color: #888; font-weight: bold; display: flex; flex-direction: column; gap: 8px; }
+select { background: #333; color: #fff; border: 1px solid #444; padding: 8px; border-radius: 4px; }
+
+/* Tarjeta de Información */
+.info-card {
+    margin-top: 20px; padding: 15px; background: rgba(255,140,26,0.15);
+    border: 1px solid rgba(255,140,26,0.3); border-radius: 8px; min-height: 50px;
 }
+.info-card p { margin: 5px 0; font-size: 14px; color: #eee; }
+#detailNome b { color: #ff8c1a; }
 
-#btnExportarCSV {
-    background: #2a3180;
-    margin-top: 5px;
-}
-
-#btnExportarCSV:hover {
-    background: #3a44a5 !important;
-    box-shadow: 0 0 10px rgba(42, 49, 128, 0.5);
-}
-
-.controls label {
-    font-size: 11px;
-    text-transform: uppercase;
-    color: #888;
-    font-weight: bold;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.controls select {
-    background: #222;
-    color: white;
-    border: 1px solid #444;
-    padding: 6px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.controls select:focus {
-    border-color: #ff8c1a;
-    outline: none;
-}
-
-/* --- 6. IMÁGENES LATERALES --- */
-.side-images {
-    position: absolute;
-    top: 100px;
-    right: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    z-index: 1000;
-}
-
-.side-image {
-    width: 90px;
-    height: auto;
-    background: white;
-    padding: 6px;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    transition: transform 0.3s ease;
-}
-
-.side-image:hover {
-    transform: scale(1.1);
-}
-
-/* --- 7. LEYENDA --- */
-.legend {
-    background: rgba(26, 26, 26, 0.9) !important;
-    padding: 10px;
-    border-radius: 8px;
-    display: flex !important;
-    flex-direction: row;
-    gap: 2px;
-    border: 1px solid rgba(255,255,255,0.1);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-}
-
-.range-item {
-    min-width: 75px;
-    height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: bold;
-    color: #fff;
-    text-shadow: 1px 1px 2px #000;
-    transition: all 0.2s ease;
-}
-
-.range-item.highlighted {
-    transform: scale(1.2);
-    box-shadow: 0 0 15px #fff;
-    z-index: 10;
-    border: 1px solid white;
-}
-
-/* --- 8. MEJORA DE TOOLTIPS (ETIQUETAS MAPA) --- */
+/* Tooltips */
 .leaflet-tooltip {
-    background: rgba(26, 26, 26, 0.95) !important;
-    color: white !important;
-    border: 1px solid #ff8c1a !important;
-    border-radius: 6px !important;
-    font-family: 'Roboto Condensed', sans-serif;
-    padding: 8px 12px !important;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
-    font-size: 13px;
-}
-
-/* Eliminar la flechita blanca por defecto para un look más limpio */
-.leaflet-tooltip-top:before, 
-.leaflet-tooltip-bottom:before, 
-.leaflet-tooltip-left:before, 
-.leaflet-tooltip-right:before {
-    border: none !important;
-}
-
-/* --- 9. SELECTOR DE CAPAS LEAFLET --- */
-.leaflet-control-layers {
-    background: rgba(30, 30, 30, 0.9) !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 8px !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
-}
-
-.leaflet-control-layers-overlays label,
-.leaflet-control-layers-base label {
-    font-family: 'Roboto Condensed', sans-serif;
-    padding: 2px 5px;
+    background: #1a1a1a !important; color: white !important;
+    border: 1px solid #ff8c1a !important; border-radius: 4px; padding: 5px 10px;
 }
