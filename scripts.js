@@ -1,14 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // ===============================
     // CAMPOS FIJOS
-    // ===============================
-    const TEXT_FIELD = "NOME";     // Nombre del municipio / parroquia
-    const VALUE_FIELD = "TAXA";    // Valor numérico a analizar
+    const TEXT_FIELD = "NOME";
+    const VALUE_FIELD = "TAXA";
 
-    // ===============================
     // MAPA BASE
-    // ===============================
     const dark = L.tileLayer(
         'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
         { attribution: '&copy; CARTO' }
@@ -20,18 +16,13 @@ document.addEventListener('DOMContentLoaded', () => {
         layers: [dark]
     });
 
-    // ===============================
-    // VARIABLES
-    // ===============================
+    // VARIABLES DOM
+    const btnCargar = document.getElementById('btnCargarGeoJSON');
+    const btnExportar = document.getElementById('btnExportarCSV');
     const classificationSelect = document.getElementById('classificationSelect');
     const paletteSelect = document.getElementById('paletteSelect');
-    const btnExportar = document.getElementById('btnExportarCSV');
 
-    let geojsonData;
-    let geojsonLayer;
-    let currentBreaks = [];
-    let currentPalette = [];
-    let legend;
+    let geojsonData, geojsonLayer, currentBreaks = [], currentPalette = [], legend;
 
     const palettes = {
         fire:   ['#fff5cc','#ffb84d','#ff8c1a','#e65c00','#993d00'],
@@ -42,20 +33,19 @@ document.addEventListener('DOMContentLoaded', () => {
         purple: ['#f2e5ff','#d1b3ff','#b380ff','#944dff','#6600cc']
     };
 
-    // ===============================
-    // FUNCIONES ESTADÍSTICAS
-    // ===============================
+    // PARSEAR VALORES NUMÉRICOS
     function parseValue(val) {
         if (val === null || val === undefined) return NaN;
         return parseFloat(val);
     }
 
+    // CALCULO DE BREAKS
     function jenksBreaks(data, n) {
-        data.sort((a, b) => a - b);
+        data.sort((a,b)=>a-b);
         const breaks = [data[0]];
-        const step = Math.floor(data.length / n);
-        for (let i = 1; i < n; i++) breaks.push(data[i * step]);
-        breaks.push(data[data.length - 1]);
+        const step = Math.floor(data.length/n);
+        for(let i=1;i<n;i++) breaks.push(data[i*step]);
+        breaks.push(data[data.length-1]);
         return breaks;
     }
 
@@ -63,96 +53,91 @@ document.addEventListener('DOMContentLoaded', () => {
         const values = geojsonData.features
             .map(f => parseValue(f.properties[VALUE_FIELD]))
             .filter(v => !isNaN(v))
-            .sort((a, b) => a - b);
+            .sort((a,b)=>a-b);
 
-        const k = 5;
+        const k=5;
 
-        if (method === 'equal') {
-            const min = values[0], max = values[values.length-1];
-            const step = (max-min)/k;
-            return Array.from({length:k+1}, (_,i)=>min+i*step);
+        if(method==='equal'){
+            const min=values[0], max=values[values.length-1];
+            const step=(max-min)/k;
+            return Array.from({length:k+1},(_,i)=>min+i*step);
         }
-
-        if (method === 'quantile') {
-            return Array.from({length:k+1}, (_,i)=>values[Math.floor(i*(values.length-1)/k)]);
+        if(method==='quantile'){
+            return Array.from({length:k+1},(_,i)=>values[Math.floor(i*(values.length-1)/k)]);
         }
-
         return jenksBreaks(values,k);
     }
 
-    function getColor(v) {
-        if (isNaN(v)) return "#333";
-        for (let i = 0; i < currentBreaks.length-1; i++) {
-            if (v >= currentBreaks[i] && v < currentBreaks[i+1]) return currentPalette[i];
+    function getColor(v){
+        if(isNaN(v)) return "#333";
+        for(let i=0;i<currentBreaks.length-1;i++){
+            if(v>=currentBreaks[i] && v<currentBreaks[i+1]) return currentPalette[i];
         }
         return currentPalette[currentPalette.length-1];
     }
 
-    function styleFeature(feature) {
+    function styleFeature(feature){
         const v = parseValue(feature.properties[VALUE_FIELD]);
-        return { fillColor: getColor(v), weight:1, color:"#fff", fillOpacity:0.8 };
+        return {fillColor:getColor(v), weight:1, color:"#fff", fillOpacity:0.8};
     }
 
-    // ===============================
     // LEYENDA
-    // ===============================
-    function addLegend() {
-        if (legend) map.removeControl(legend);
-        legend = L.control({ position:"bottomright" });
-
-        legend.onAdd = () => {
+    function addLegend(){
+        if(legend) map.removeControl(legend);
+        legend = L.control({position:"bottomright"});
+        legend.onAdd = ()=>{
             const div = L.DomUtil.create("div","legend");
             currentPalette.forEach((c,i)=>{
-                const item = document.createElement("div");
+                const item=document.createElement("div");
                 item.className="range-item";
                 item.style.background=c;
-                item.innerText = currentBreaks[i].toFixed(0) + " - " + currentBreaks[i+1].toFixed(0);
+                item.innerText=currentBreaks[i].toFixed(0) + " - " + currentBreaks[i+1].toFixed(0);
                 div.appendChild(item);
             });
             return div;
         };
-
         legend.addTo(map);
     }
 
-    function updateMap() {
+    function updateMap(){
+        if(!geojsonLayer) return;
         currentPalette = palettes[paletteSelect.value];
         currentBreaks = computeBreaks(classificationSelect.value);
         geojsonLayer.setStyle(styleFeature);
         addLegend();
     }
 
-    // ===============================
-    // CARGAR GEOJSON
-    // ===============================
-    fetch("barcelos.geojson")
-        .then(res=>res.json())
-        .then(data=>{
-            geojsonData = data;
-            geojsonLayer = L.geoJSON(data, {
-                style: styleFeature,
-                onEachFeature: (feature, layer)=>{
-                    layer.bindTooltip(`
-                        <strong>${feature.properties[TEXT_FIELD]}</strong><br>
-                        ${VALUE_FIELD}: ${feature.properties[VALUE_FIELD]}
-                    `,{sticky:true});
-                }
-            }).addTo(map);
-            map.fitBounds(geojsonLayer.getBounds());
-            updateMap();
-        });
+    // CARGAR GEOJSON CON BOTÓN
+    btnCargar.onclick = ()=>{
+        fetch("barcelos.geojson")
+            .then(res=>res.json())
+            .then(data=>{
+                geojsonData = data;
+                if(geojsonLayer) map.removeLayer(geojsonLayer);
+                geojsonLayer = L.geoJSON(data,{
+                    style: styleFeature,
+                    onEachFeature: (feature, layer)=>{
+                        layer.bindTooltip(
+                            `<strong>${feature.properties[TEXT_FIELD]}</strong><br>${VALUE_FIELD}: ${feature.properties[VALUE_FIELD]}`,
+                            {sticky:true}
+                        );
+                    }
+                }).addTo(map);
+                map.fitBounds(geojsonLayer.getBounds());
+                updateMap();
+            })
+            .catch(err=>alert("No se pudo cargar el GeoJSON. Verifica la ruta."));
+    };
 
     classificationSelect.onchange = updateMap;
     paletteSelect.onchange = updateMap;
 
-    // ===============================
     // EXPORTAR CSV
-    // ===============================
     btnExportar.onclick = ()=>{
-        if(!geojsonData) return;
+        if(!geojsonData){ alert("Primero cargue el GeoJSON."); return; }
         const headers = Object.keys(geojsonData.features[0].properties).join(",");
         const rows = geojsonData.features.map(f=>Object.values(f.properties).join(","));
-        const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + rows.join("\n");
+        const csvContent = "data:text/csv;charset=utf-8,"+headers+"\n"+rows.join("\n");
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href",encodedUri);
