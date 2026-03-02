@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIG Barcelos | Análise Geográfica</title>
+    <title>SIG Barcelos | Análise Geográfica Avançada</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
@@ -24,10 +24,21 @@
 
         <div class="separator"></div>
 
-        <label>MÉTODO DE CLASSIFICAÇÃO
+        <label>MÉTODO ESTATÍSTICO
             <select id="classificationSelect">
                 <option value="jenks" selected>Quebras Naturais (Jenks)</option>
                 <option value="equal">Intervalos Iguais</option>
+                <option value="quartiles">Quartis (25% cada)</option>
+            </select>
+        </label>
+
+        <label>ESQUEMA DE CORES
+            <select id="paletteSelect">
+                <option value="orange" selected>Laranja</option>
+                <option value="viridis">Viridis</option>
+                <option value="magma">Magma</option>
+                <option value="greens">Natureza</option>
+                <option value="blues">Oceano</option>
             </select>
         </label>
 
