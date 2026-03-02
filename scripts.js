@@ -34,13 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function computeBreaks(data, method) {
         const values = data.features.map(f => parseFloat(getProp(f.properties, ['taxa', 'rate'])) || 0).sort((a,b) => a-b);
         if (method === 'quartiles') {
-            return [
-                values[0],
-                values[Math.floor(values.length * 0.25)],
-                values[Math.floor(values.length * 0.5)],
-                values[Math.floor(values.length * 0.75)],
-                values[values.length - 1]
-            ];
+            return [values[0], values[Math.floor(values.length * 0.25)], values[Math.floor(values.length * 0.5)], values[Math.floor(values.length * 0.75)], values[values.length - 1]];
         }
         if (method === 'equal') {
             const min = values[0], max = values[values.length-1];
@@ -86,10 +80,28 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('detailNome').innerHTML = `<b>Nome:</b> ${nome}`;
         document.getElementById('detailTaxa').innerHTML = `<b>Taxa:</b> ${taxa}%`;
         labelSelect.value = nome;
-        geojsonLayer.eachLayer(l => geojsonLayer.resetStyle(l));
-        layer.setStyle({ color: '#fff', weight: 3, fillOpacity: 0.9 });
+
+        // Reset Estilos y Tooltips
+        geojsonLayer.eachLayer(l => {
+            geojsonLayer.resetStyle(l);
+            l.unbindTooltip(); 
+        });
+
+        // Resaltar Polígono y Etiqueta
+        layer.setStyle({ color: '#fff', weight: 4, fillOpacity: 0.9 });
+        layer.bindTooltip(`<b>${nome}</b><br>${taxa}%`, {
+            direction: 'center', permanent: false, className: 'tooltip-selected'
+        }).openTooltip();
         layer.bringToFront();
         map.fitBounds(layer.getBounds(), { padding: [30, 30] });
+
+        // Sincronizar Leyenda
+        document.querySelectorAll('.legend-item').forEach(el => el.classList.remove('active-legend'));
+        document.querySelectorAll('.legend-item').forEach((item, index) => {
+            if (taxa >= currentBreaks[index] && taxa <= currentBreaks[index + 1]) {
+                item.classList.add('active-legend');
+            }
+        });
     }
 
     function addLegend() {
