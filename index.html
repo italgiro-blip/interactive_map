@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIG Barcelos | Análise Geográfica Avançada</title>
+    <title>SIG Barcelos | Pro</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
@@ -24,6 +24,14 @@
 
         <div class="separator"></div>
 
+        <label>MAPA BASE
+            <select id="baseMapSelect">
+                <option value="dark">Modo Escuro (CartoDB)</option>
+                <option value="streets">OpenStreetMap (Ruas)</option>
+                <option value="satellite">Satélite (Esri)</option>
+            </select>
+        </label>
+
         <label>MÉTODO ESTATÍSTICO
             <select id="classificationSelect">
                 <option value="jenks" selected>Quebras Naturais (Jenks)</option>
@@ -32,13 +40,13 @@
             </select>
         </label>
 
-        <label>ESQUEMA DE CORES
+        <label>GAMA DE CORES
             <select id="paletteSelect">
-                <option value="orange" selected>Laranja</option>
-                <option value="viridis">Viridis</option>
-                <option value="magma">Magma</option>
-                <option value="greens">Natureza</option>
-                <option value="blues">Oceano</option>
+                <option value="reds">Vermelhos</option>
+                <option value="purples">Violetas</option>
+                <option value="greens">Verdes</option>
+                <option value="yellows">Amarelos</option>
+                <option value="blues" selected>Azuis</option>
             </select>
         </label>
 
